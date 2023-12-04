@@ -213,7 +213,7 @@ def main():
     opts.add_option("-r", "--remove", type="int", default=0,
                     help="percentage of data removed at start/end of each files")
     opts.add_option("-k", "--klipper_dir", type="string", dest="klipperdir",
-                    default="/home/pi/klipper", help="main klipper directory")
+                    default="~/klipper", help="main klipper directory")
     options, args = opts.parse_args()
     if len(args) < 1:
         opts.error("No CSV file(s) to analyse")
