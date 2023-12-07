@@ -1,5 +1,4 @@
- saved_variables.cfg
- K-ShakeTune_results/belts/*.csv
- K-ShakeTune_results/inputshaper/*.csv
- K-ShakeTune_results/vibrations/*.tar.gz
+saved_variables.cfg
+K-ShakeTune_results/**/*.csv
+K-ShakeTune_results/vibrations/*.tar.gz
 *.bkp
