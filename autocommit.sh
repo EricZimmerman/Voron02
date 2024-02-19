@@ -30,6 +30,10 @@ mainsail_folder=~/mainsail
 ### Path to your Fluidd folder, by default that is '~/fluidd'
 #fluidd_folder=~/fluidd
 
+### Set this to true if you want ONLY the history table to be dumped
+### from data.mdb.
+history_only=false
+
 #####################################################################
 #####################################################################
 
@@ -64,8 +68,15 @@ grab_version(){
 
 if command -v /usr/bin/mdb_dump &> /dev/null
 then
-    echo "mdb_dump found! Exporting data.mdb to ~/printer_data/config/data.mdb.backup"
-    mdb_dump -a -n ~/printer_data/database/data.mdb -f ~/printer_data/config/data.mdb.backup
+    if $history_only
+    then
+	echo "mdb_dump found! Exporting history table from data.mdb to ~/printer_data/config/data.mdb.backup"
+        mdb_dump -s history -n ~/printer_data/database/data.mdb -f ~/printer_data/config/data.mdb.backup
+    else
+        echo "mdb_dump found! Exporting ALL tables data.mdb to ~/printer_data/config/data.mdb.backup"
+        mdb_dump -a -n ~/printer_data/database/data.mdb -f ~/printer_data/config/data.mdb.backup
+    fi
+
 else
     echo "mdb_dump not found! Consider installing it via 'sudo apt install lmdb-utils' if you want to back up your statistics database!"
 fi
