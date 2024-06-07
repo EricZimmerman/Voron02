@@ -30,12 +30,15 @@ mainsail_folder=~/mainsail
 ### Path to your Fluidd folder, by default that is '~/fluidd'
 #fluidd_folder=~/fluidd
 
-### Set this to true if you want ONLY the history table to be dumped
-### from data.mdb.
-history_only=false
+### The branch of the repository that you want to save your config
+### By default that is 'main'
+branch=master
+
+db_file=~/printer_data/database/moonraker-sql.db
 
 #####################################################################
 #####################################################################
+
 
 
 #####################################################################
@@ -43,16 +46,12 @@ history_only=false
 #####################################################################
 grab_version(){
   if [ ! -z "$klipper_folder" ]; then
-    cd "$klipper_folder"
-    klipper_commit=$(git rev-parse --short=7 HEAD)
-    m1="Klipper on commit: $klipper_commit"
-    cd ..
+    klipper_commit=$(git -C $klipper_folder describe --always --tags --long | awk '{gsub(/^ +| +$/,"")} {print $0}')
+    m1="Klipper version: $klipper_commit"
   fi
   if [ ! -z "$moonraker_folder" ]; then
-    cd "$moonraker_folder"
-    moonraker_commit=$(git rev-parse --short=7 HEAD)
-    m2="Moonraker on commit: $moonraker_commit"
-    cd ..
+    moonraker_commit=$(git -C $moonraker_folder describe --always --tags --long | awk '{gsub(/^ +| +$/,"")} {print $0}')
+    m2="Moonraker version: $moonraker_commit"
   fi
   if [ ! -z "$mainsail_folder" ]; then
     mainsail_ver=$(head -n 1 $mainsail_folder/.version)
@@ -64,21 +63,16 @@ grab_version(){
   fi
 }
 
-# Here we dump stats database to text format for backup, IF the right software is found
+# Here we copy the sqlite database for backup
+# To RESTORE the database, stop moonraker, then use the following command:
+# cp ~/printer_data/config/moonraker-sql.db ~/printer_data/database/
+# Finally, restart moonraker
 
-if command -v /usr/bin/mdb_dump &> /dev/null
-then
-    if $history_only
-    then
-	echo "mdb_dump found! Exporting history table from data.mdb to ~/printer_data/config/data.mdb.backup"
-        mdb_dump -s history -n ~/printer_data/database/data.mdb -f ~/printer_data/config/data.mdb.backup
-    else
-        echo "mdb_dump found! Exporting ALL tables data.mdb to ~/printer_data/config/data.mdb.backup"
-        mdb_dump -a -n ~/printer_data/database/data.mdb -f ~/printer_data/config/data.mdb.backup
-    fi
-
+if [ -f $db_file ]; then
+   echo "sqlite based history database found! Copying..."
+   cp ~/printer_data/database/moonraker-sql.db ~/printer_data/config/
 else
-    echo "mdb_dump not found! Consider installing it via 'sudo apt install lmdb-utils' if you want to back up your statistics database!"
+   echo "sqlite based history database not found"
 fi
 
 # To fully automate this and not have to deal with auth issues, generate a legacy token on Github
@@ -90,11 +84,11 @@ fi
 
 push_config(){
   cd $config_folder
-  git pull origin master
+  git pull origin $branch --no-rebase
   git add .
   current_date=$(date +"%Y-%m-%d %T")
   git commit -m "Autocommit from $current_date" -m "$m1" -m "$m2" -m "$m3" -m "$m4"
-  git push origin master
+  git push origin $branch
 }
 
 grab_version
