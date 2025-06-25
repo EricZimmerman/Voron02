@@ -1,4 +1,4 @@
 [Variables]
-filaments = {'Polymaker ASA': {'name': 'Polymaker ASA', 'configs': [{'nozzle_diameter': 0.4, 'pressure_advance': 0.024, 'smooth_time': 0.03}]}}
+filaments = {'v0.2_Polymaker ASA': {'name': 'v0.2_Polymaker ASA', 'configs': [{'nozzle_diameter': 0.4, 'pressure_advance': 0.024, 'smooth_time': 0.02}]}}
 materials = {'ASA': 0.024}
 
